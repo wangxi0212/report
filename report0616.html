@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>月度项目汇报 - 2026年6月</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --color-primary: #4F46E5;
+            --color-secondary: #10B981;
+            --color-accent: #F59E0B;
+            --color-background: #0F172A;
+            --color-surface: #1E293B;
+            --color-text: #F8FAFC;
+            --color-text-muted: #94A3B8;
+            --primitive-gradient-primary: linear-gradient(135deg, #4F46E5, #7C3AED);
+            --primitive-gradient-secondary: linear-gradient(135deg, #10B981, #34D399);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: var(--color-background);
+            color: var(--color-text);
+            font-family: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+        }
+
+        .slide-deck {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        @media (min-width: 769px) {
+            .slide-deck {
+                max-width: calc(100vh * 16 / 9);
+                max-height: calc(100vw * 9 / 16);
+                margin: auto;
+                position: absolute;
+                inset: 0;
+            }
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%; 
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 60px 80px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            background: var(--color-background);
+            overflow: hidden;
+        }
+
+        .slide.active { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+
+        .slide-content {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+        }
+
+        h1, h2, h3 { 
+            font-family: 'Space Grotesk', 'PingFang SC', sans-serif;
+            font-weight: 700;
+        }
+
+        .slide-title {
+            font-size: clamp(36px, 5vw, 72px);
+            background: var(--primitive-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .slide-subtitle {
+            font-size: clamp(18px, 2.5vw, 28px);
+            color: var(--color-text-muted);
+            font-weight: 400;
+        }
+
+        .section-title {
+            font-size: clamp(28px, 4vw, 48px);
+            color: var(--color-text);
+            margin-bottom: 16px;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .card-title {
+            font-size: 20px;
+            color: var(--color-primary);
+            margin-bottom: 12px;
+        }
+
+        .card-content {
+            font-size: 16px;
+            color: var(--color-text-muted);
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .feature-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .feature-grid { grid-template-columns: 1fr; }
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .metric-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .metric-grid { grid-template-columns: 1fr; }
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, var(--color-surface), rgba(79, 70, 229, 0.1));
+            border-radius: 16px;
+            padding: 28px 20px;
+            text-align: center;
+            border: 1px solid rgba(79, 70, 229, 0.3);
+        }
+
+        .metric-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: var(--primitive-gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            margin-top: 8px;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primitive-gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            flex: 1;
+            text-align: left;
+        }
+
+        .timeline-title {
+            font-size: 18px;
+            color: var(--color-text);
+            margin-bottom: 6px;
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .two-column { grid-template-columns: 1fr; }
+        }
+
+        .column {
+            text-align: left;
+        }
+
+        .column-title {
+            font-size: 22px;
+            color: var(--color-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .column-title::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: var(--primitive-gradient-primary);
+            border-radius: 2px;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+            font-size: 15px;
+            color: var(--color-text-muted);
+            line-height: 1.5;
+        }
+
+        .list-bullet {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-secondary);
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .highlight-title {
+            font-size: 16px;
+            color: var(--color-secondary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 700px;
+            height: 300px;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0; 
+            left: 0;
+            height: 3px;
+            background: var(--primitive-gradient-primary);
+            transition: width 0.3s;
+            z-index: 1000;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            width: 44px; 
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { 
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+
+        .slide-counter { 
+            color: rgba(255,255,255,0.6); 
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background: rgba(79, 70, 229, 0.2);
+            color: #A5B4FC;
+            border: 1px solid rgba(79, 70, 229, 0.4);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6EE7B7;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .project-tag {
+            font-size: 14px;
+            color: var(--color-accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .animate-fade-up {
+            animation: fadeUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-stagger > * {
+            opacity: 0;
+            animation: fadeUp 0.5s ease-out forwards;
+        }
+
+        .animate-stagger > *:nth-child(1) { animation-delay: 0.1s; }
+        .animate-stagger > *:nth-child(2) { animation-delay: 0.2s; }
+        .animate-stagger > *:nth-child(3) { animation-delay: 0.3s; }
+        .animate-stagger > *:nth-child(4) { animation-delay: 0.4s; }
+        .animate-stagger > *:nth-child(5) { animation-delay: 0.5s; }
+
+        .divider {
+            width: 60px;
+            height: 4px;
+            background: var(--primitive-gradient-primary);
+            border-radius: 2px;
+            margin: 16px 0;
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: 32px 24px; }
+            .slide-title { font-size: clamp(28px, 5vw, 48px); }
+            .section-title { font-size: clamp(22px, 4vw, 36px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <div class="slide-deck">
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-content">
+                <div class="project-tag">Monthly Report</div>
+                <h1 class="slide-title">月度项目汇报</h1>
+                <div class="divider"></div>
+                <p class="slide-subtitle">2026年6月 | 系统优化与流程改进</p>
+                <div style="margin-top: 40px; display: flex; gap: 16px;">
+                    <span class="badge badge-primary">MSCS分单优化</span>
+                    <span class="badge badge-success">遗留单责任申诉</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Overview -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-title">项目概述</h2>
+                <div class="feature-grid animate-stagger">
+                    <div class="card">
+                        <div class="card-title">MSCS分单优化</div>
+                        <div class="card-content">
+                            实现离职人员工单自动转交，避免流程停滞，提升分单效率与准确性
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">遗留单责任申诉</div>
+                        <div class="card-content">
+                            自动对接结算中心，减少人工操作，实现财务报表自动取数
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">核心价值</div>
+                        <div class="card-content">
+                            流程自动化、数据准确性提升、人工成本降低、财务报表实时化
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Project 1 Background -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="project-tag">Project 01</div>
+                <h2 class="section-title">MSCS分单优化 - 项目背景</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <div class="column-title">业务痛点</div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>员工离职后，其名下工单无人处理，导致流程停滞</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>需人工手动查询离职状态并调整处理人</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>分单规则计算后无法自动识别离职人员</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>影响业务流转效率与客户体验</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="column-title">核心成员</div>
+                        <div class="card" style="margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--color-text);">陈谨</span>
+                                <span class="badge badge-primary">开发</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--color-text);">王西</span>
+                                <span class="badge badge-success">需求分析</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Project 1 Implementation -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="project-tag">Project 01</div>
+                <h2 class="section-title">MSCS分单优化 - 实施方案</h2>
+                <div class="timeline animate-stagger">
+                    <div class="timeline-item">
+                        <div class="timeline-marker">1</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">用户表新增字段</div>
+                            <div class="timeline-desc">MSCS用户表新增【是否离职】及【流程交接人】字段，存储OA离职用户信息</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker">2</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">OA离职信息分发</div>
+                            <div class="timeline-desc">OA离职审批流程结束后，通过RabbitMQ分发消息，MSCS消费并更新用户离职状态及交接人</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-marker">3</div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">处理人计算逻辑优化</div>
+                            <div class="timeline-desc">计算得出处理人后，匹配用户表离职标识，若已离职则自动返回交接人工号</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Project 1 Value -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="project-tag">Project 01</div>
+                <h2 class="section-title">MSCS分单优化 - 项目价值</h2>
+                <div class="metric-grid animate-stagger">
+                    <div class="metric-card">
+                        <div class="metric-number">100%</div>
+                        <div class="metric-label">离职自动转交覆盖率</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">0</div>
+                        <div class="metric-label">人工干预次数</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">实时</div>
+                        <div class="metric-label">离职状态同步</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-number">OA</div>
+                        <div class="metric-label">系统集成</div>
+                    </div>
+                </div>
+                <div class="highlight-box" style="margin-top: 32px; width: 100%;">
+                    <div class="highlight-title">核心收益</div>
+                    <div style="color: var(--color-text-muted); font-size: 15px;">
+                        消除离职人员导致的流程停滞风险，实现工单自动流转，提升业务连续性与客户满意度
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Project 2 Background -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="project-tag">Project 02</div>
+                <h2 class="section-title">遗留单责任申诉 - 项目背景</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <div class="column-title">业务痛点</div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>申诉订单审核完成后，需管理员手工做加减收调整费用</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>操作复杂，处理时间长，影响效率</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>财务报表无法自动对接，需手工调整</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet"></div>
+                            <span>人工统计加工工作量大，易出错</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="column-title">项目目标</div>
+                        <div class="highlight-box">
+                            <div style="color: var(--color-text); font-size: 16px; margin-bottom: 12px;">
+                                实现财务报表自动取数
+                            </div>
+                            <div style="color: var(--color-text-muted); font-size: 14px;">
+                                减少人工统计加工，提升财务数据准确性与实时性
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Project 2 Implementation -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="project-tag">Project 02</div>
+                <h2 class="section-title">遗留单责任申诉 - 实施方案</h2>
+                <div class="feature-grid animate-stagger">
+                    <div class="card">
+                        <div class="card-title">字段新增</div>
+                        <div class="card-content">
+                            VFDP申诉流程部件明细行增加【价格】、【板件ID】字段，获取原遗留单价格
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">价格审核栏</div>
+                        <div class="card-content">
+                            新增【成本收入分类】、【加收收入分类】、【计价收入分类】，支持自动联动计算
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">自动对接</div>
+                        <div class="card-content">
+                            申诉完成后自动对接结算中心扣款，无需人工干预
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Project 2 Logic -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="project-tag">Project 02</div>
+                <h2 class="section-title">遗留单责任申诉 - 收入分类逻辑</h2>
+                <div class="two-column">
+                    <div class="column">
+                        <div class="column-title">加收收入分类</div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-primary);"></div>
+                            <span>商场责/运损责申诉公司责 → 计价收入分类的负值</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-primary);"></div>
+                            <span>公司责申诉商场责 → 计价收入分类</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-primary);"></div>
+                            <span>公司责责任二级申诉 → 默认为0，可调整</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="column-title">成本收入分类</div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-secondary);"></div>
+                            <span>商场责/运损责申诉公司责 → 计价收入分类</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-secondary);"></div>
+                            <span>公司责申诉商场责 → 计价收入分类的负值</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-secondary);"></div>
+                            <span>公司责责任二级申诉 → 默认为0，可调整</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="highlight-box" style="width: 100%; margin-top: 24px;">
+                    <div class="highlight-title">智能判断</div>
+                    <div style="color: var(--color-text-muted); font-size: 15px;">
+                        若【加收收入分类】和【成本收入分类】均为0，则无需对接结算中心
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Next Month Plan -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-title">下月工作计划</h2>
+                <div class="two-column animate-stagger" style="margin-top: 16px;">
+                    <div class="column">
+                        <div class="column-title">系统优化方向</div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-primary);"></div>
+                            <span>扩展离职交接至更多业务场景</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-primary);"></div>
+                            <span>持续提升系统自动化水平</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-primary);"></div>
+                            <span>优化MSCS分单逻辑与稳定性</span>
+                        </div>
+                    </div>
+                    <div class="column">
+                        <div class="column-title">流程与数据改进</div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-secondary);"></div>
+                            <span>优化申诉流程审批效率</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-secondary);"></div>
+                            <span>增强财务数据分析能力</span>
+                        </div>
+                        <div class="list-item">
+                            <div class="list-bullet" style="background: var(--color-secondary);"></div>
+                            <span>建立自动化报表体系</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="highlight-box" style="margin-top: 32px; width: 100%;">
+                    <div class="highlight-title">核心目标</div>
+                    <div style="color: var(--color-text-muted); font-size: 15px;">
+                        深化系统自动化能力，提升业务流程效率，强化数据决策支持
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Conclusion -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="section-title">总结</h2>
+                <div class="feature-grid animate-stagger">
+                    <div class="card">
+                        <div class="card-title">离职自动转交</div>
+                        <div class="card-content">
+                            实现离职人员工单自动转交机制，消除流程停滞风险
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">申诉流程对接</div>
+                        <div class="card-content">
+                            申诉流程与结算中心无缝对接，财务报表自动取数
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">效率提升</div>
+                        <div class="card-content">
+                            大幅减少人工操作与错误率，提升业务处理效率
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 40px;">
+                    <span class="badge badge-primary" style="font-size: 16px; padding: 10px 24px;">感谢聆听</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="prevSlide()">←</button>
+        <span class="slide-counter"><span id="current">1</span> / <span id="total">10</span></span>
+        <button class="nav-btn" onclick="nextSlide()">→</button>
+    </div>
+
+    <script>
+        let current = 1;
+        const total = document.querySelectorAll('.slide').length;
+        document.getElementById('total').textContent = total;
+
+        function showSlide(n) {
+            if (n < 1) n = 1;
+            if (n > total) n = total;
+            current = n;
+            document.querySelectorAll('.slide').forEach((s, i) => {
+                s.classList.toggle('active', i === n - 1);
+            });
+            document.getElementById('current').textContent = n;
+            document.getElementById('progressBar').style.width = (n / total * 100) + '%';
+        }
+
+        function nextSlide() { showSlide(current + 1); }
+        function prevSlide() { showSlide(current - 1); }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-controls')) nextSlide();
+        });
+
+        showSlide(1);
+
+
+    </script>
+</body>
+</html>
